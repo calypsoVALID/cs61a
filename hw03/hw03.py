@@ -147,6 +147,17 @@ def count_dollars(total):
     True
     """
     "*** YOUR CODE HERE ***"
+    def constrained_count(total, largest_bill):
+        if total == 0:
+            return 1
+        if total < 0:
+            return 0
+        if largest_bill == None:
+            return 0
+        without_doller_bill = constrained_count(total, next_smaller_dollar(largest_bill))
+        with_doller_bill = constrained_count(total - largest_bill, largest_bill)
+        return with_doller_bill + without_doller_bill
+    return constrained_count(total, 100)
 
 
 def next_larger_dollar(bill):
