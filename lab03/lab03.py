@@ -95,7 +95,7 @@ def double_eights(n):
     "*** YOUR CODE HERE ***"
     if n < 10:
         return False
-    if n % 100 == 88:
+    elif n % 100 == 88:
         return True
     else:
         return double_eights(n // 10)
