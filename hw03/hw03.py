@@ -148,15 +148,23 @@ def count_dollars(total):
     """
     "*** YOUR CODE HERE ***"
     def constrained_count(total, largest_bill):
+        # 基本情况：成功组合
         if total == 0:
             return 1
-        if total < 0:
+        # 无效组合或没有可用钞票
+        if total < 0 or largest_bill is None:
             return 0
-        if largest_bill == None:
-            return 0
+
+        # 情况1：不使用当前最大面额，改用更小面额
         without_doller_bill = constrained_count(total, next_smaller_dollar(largest_bill))
+        
+        # 情况2：使用当前面额（可重复使用），扣除金额后继续处理
         with_doller_bill = constrained_count(total - largest_bill, largest_bill)
+
+        # 返回两种情况的组合数之和
         return with_doller_bill + without_doller_bill
+    
+    # 从最大面额100开始计算
     return constrained_count(total, 100)
 
 
