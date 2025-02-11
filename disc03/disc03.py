@@ -75,16 +75,21 @@ def hailstone(n):
     1
     """
     print(n)
-    if n % 2 == 0:
-        return even(n)
+    if n == 1:
+        return 1
+    elif n % 2 == 0:
+        return 1 + even(n)
     else:
-        return odd(n)
+        return 1 + odd(n)
 
 def even(n):
-    return ____
+    return hailstone(n // 2)
 
 def odd(n):
-    "*** YOUR CODE HERE ***"
+    if n == 1:
+        return 0
+    else:
+        return hailstone(3 * n + 1)
 
 def sevens(n, k):
     """Return the (clockwise) position of who says n among k players.
@@ -106,6 +111,11 @@ def sevens(n, k):
         if i == n:
             return who
         "*** YOUR CODE HERE ***"
+        if has_seven(i) or i % 7 == 0:
+            direction = - direction
+            return f(i + 1, (who + direction - 1) % k + 1, direction)
+        else:
+            return f(i + 1, (who + direction - 1) % k + 1, direction)
     return f(1, 1, 1)
 
 def has_seven(n):
