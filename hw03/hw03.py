@@ -202,7 +202,20 @@ def count_dollars_upward(total):
     True
     """
     "*** YOUR CODE HERE ***"
- 
+    def constrained_count(total, current_bill):
+        if total == 0:
+            return 1
+        if total < 0 or current_bill is None:
+            return 0
+            
+        # 使用当前面额
+        use_current = constrained_count(total - current_bill, current_bill)
+        # 不使用当前面额，改用更大面额
+        use_larger = constrained_count(total, next_larger_dollar(current_bill))
+        
+        return use_current + use_larger
+    
+    return constrained_count(total, 1)
 
 def print_move(origin, destination):
     """Print instructions to move a disk."""
@@ -253,4 +266,3 @@ def make_anonymous_factorial():
     True
     """
     return 'YOUR_EXPRESSION_HERE'
-

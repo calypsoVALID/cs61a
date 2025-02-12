@@ -196,14 +196,10 @@ def autocorrect(typed_word, word_list, diff_function, limit):
         return typed_word
     else:
         diff_list = [diff_function(typed_word, w, limit) for w in word_list]
-        print("DEBUG:", diff_list)
         liked_word_diff = min(diff_list, key = abs)
-        print("DEBUG:", liked_word_diff)
         if liked_word_diff > limit:
-            print("DEBUG:", typed_word)
             return typed_word
         else:
-            print("DEBUG:", word_list)
             for i in range(len(diff_list)):
                 if diff_list[i] == liked_word_diff:
                     return word_list[i]
@@ -233,43 +229,68 @@ def furry_fixes(typed, source, limit):
     5
     """
     # BEGIN PROBLEM 6
+    # 定义一个辅助函数，该函数接受两个字符串和limit，返回两个字符串相同位置字符不同的个数
+    def diff_count(str1, str2, lim):
+        # 递归终止条件：如果其中一个字符串为空字符串则返回
+        if not str1 or not str2:
+            return 0
+        # 递归终止条件： 如果更改字符个数大于limit则停止递归。
+        elif lim < 0:
+            return 0
+        # 逐个字符比较两个字符串
+        elif str1[0] == str2[0]:
+            # 递归调用，比较剩余部分的字符
+            return diff_count(str1[1:], str2[1:], lim)
+        else:
+            lim -= 1
+            return 1 + diff_count(str1[1:], str2[1:], lim)
+
+    # 返回长度之差加需要更改的字符个数
+    return abs(len(typed) - len(source)) + diff_count(typed, source, limit)    
+
     # END PROBLEM 6
 
 
 def minimum_mewtations(typed, source, limit):
-    """A diff function for autocorrect that computes the edit distance from TYPED to SOURCE.
-    This function takes in a string TYPED, a string SOURCE, and a number LIMIT.
-
-    Arguments:
-        typed: a starting word
-        source: a string representing a desired goal word
-        limit: a number representing an upper bound on the number of edits
-
-    >>> big_limit = 10
-    >>> minimum_mewtations("cats", "scat", big_limit)       # cats -> scats -> scat
-    2
-    >>> minimum_mewtations("purng", "purring", big_limit)   # purng -> purrng -> purring
-    2
-    >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
-    3
+    """计算从输入单词到目标单词的最小编辑距离（使用递归方法）。
+    
+    参数:
+        typed (str): 用户输入的单词（可能包含拼写错误）
+        source (str): 目标正确单词
+        limit (int): 允许的最大编辑次数
+    
+    返回值:
+        int: 将typed转换为source所需的最小操作次数。如果超过limit则返回当前计算值
+        
+    示例:
+        >>> minimum_mewtations("cats", "scat", 10)
+        2  # 操作步骤：添加's'（cats -> scats） -> 删除's'（scats -> scat）
+        >>> minimum_mewtations("purng", "purring", 10)
+        2  # 操作步骤：添加'r'（purng -> purrng） -> 添加'i'（purrng -> purring）
     """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-    # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    # 基本情况处理
+    if limit < 0:
+        # 超过允许的编辑次数限制，返回当前已计算的编辑次数
+        return 0
+    elif len(typed) == 0 or len(source) == 0:
+        # 任一字符串为空时，需要编辑的次数为剩余字符的长度之和
+        return len(typed) + len(source)
+    
+    # 递归情况处理
+    if typed[0] == source[0]:
+        # 首字符相同，处理剩余部分，不增加编辑次数
+        return minimum_mewtations(typed[1:], source[1:], limit)
     else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+        # 计算三种可能的编辑操作：
+        # 1. 添加操作：在typed开头添加source的首字符，继续比较typed和source[1:]
+        add = minimum_mewtations(typed, source[1:], limit - 1)
+        # 2. 删除操作：删除typed的首字符，继续比较typed[1:]和source
+        remove = minimum_mewtations(typed[1:], source, limit - 1)
+        # 3. 替换操作：将typed的首字符替换为source的首字符，继续比较剩余部分
+        substitute = minimum_mewtations(typed[1:], source[1:], limit - 1)
+        
+        # 返回三种操作中的最小值加1（当前操作的代价）
+        return 1 + min(add, remove, substitute)
 
 
 # Ignore the line below
@@ -315,6 +336,21 @@ def report_progress(typed, source, user_id, upload):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    correct_count = 0
+    # 遍历typed遇到第一个错误str时结束循环
+    for i in range(len(typed)):
+        if typed[i] == source[i]:
+            correct_count += 1
+        else:
+            break
+    # 计算progress值
+    progress = correct_count / len(source)
+    # 将playerid和progress加入dict
+    d = {'id': user_id, 'progress': progress}
+    # 调用upload
+    upload(d)
+    # 返回progress值
+    return progress
     # END PROBLEM 8
 
 
@@ -338,7 +374,12 @@ def time_per_word(words, timestamps_per_player):
     """
     tpp = timestamps_per_player  # A shorter name (for convenience)
     # BEGIN PROBLEM 9
-    times = []  # You may remove this line
+    times = []
+    for player in tpp:
+        time = []
+        for i in range(len(player) - 1):
+            time.append(player[i + 1] - player[i])
+        times.append(time)
     # END PROBLEM 9
     return {'words': words, 'times': times}
 
@@ -364,9 +405,25 @@ def fastest_words(words_and_times):
     words, times = words_and_times['words'], words_and_times['times']
     player_indices = range(len(times))  # contains an *index* for each player
     word_indices = range(len(words))    # contains an *index* for each word
-    # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 10
+    # 初始化结果列表，每个玩家一个空列表
+    result = [[] for _ in player_indices]
+    
+    # 遍历每个单词
+    for word_idx in word_indices:
+        min_time = float('inf')
+        fastest_player = 0
+        
+        # 查找输入该单词最快的玩家
+        for player_idx in player_indices:
+            current_time = times[player_idx][word_idx]
+            if current_time < min_time:
+                min_time = current_time
+                fastest_player = player_idx
+        
+        # 将单词添加到对应玩家的结果列表
+        result[fastest_player].append(words[word_idx])
+    
+    return result
 
 
 def check_words_and_times(words_and_times):
